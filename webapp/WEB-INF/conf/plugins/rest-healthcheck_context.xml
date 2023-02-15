@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" >
+
+	<!-- Forced status Health check -->
+    <bean id="rest-healthcheck.forcedStatusCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.ForcedStatusCheck" />
+	
+	<!-- DB Health check -->
+    <bean id="rest-healthcheck.dBcheckDAO" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.DBCheckDAO" />
+    <bean id="rest-healthcheck.dBCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.DBCheck" >
+		<constructor-arg index="0" ref="rest-healthcheck.dBcheckDAO"/>
+	</bean>
+    
+    <!-- memory usage Check -->
+    <bean id="rest-healthcheck.memoryUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.MemoryUsageCheck" />
+	
+	<!-- cpu usage Check -->
+    <bean id="rest-healthcheck.cpuUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.CpuUsageCheck" />
+	    
+    <!-- Rest service -->
+    <bean id="rest-healthcheck.checkRest" class="fr.paris.lutece.plugins.rest.modules.healthcheck.rs.HealthCheckRest" />
+	
+    
+    <!-- swagger  -->
+    <bean id="rest-healthcheck.swaggerRest" class="fr.paris.lutece.plugins.rest.modules.healthcheck.rs.SwaggerRest" />
+
+</beans>
