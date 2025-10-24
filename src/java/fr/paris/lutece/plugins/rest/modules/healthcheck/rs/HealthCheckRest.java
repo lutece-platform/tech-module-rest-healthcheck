@@ -143,7 +143,7 @@ public class HealthCheckRest
         if ( listChecks.isEmpty( ) )
         {
             return Response.status( Response.Status.SERVICE_UNAVAILABLE )
-                    .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.SERVICE_UNAVAILABLE.name( ), Constants.EMPTY_OBJECT ) ) )
+                    .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.SERVICE_UNAVAILABLE.name( ), Constants.ERROR_NO_SERVICE ) ) )
                     .build( );
         }
 

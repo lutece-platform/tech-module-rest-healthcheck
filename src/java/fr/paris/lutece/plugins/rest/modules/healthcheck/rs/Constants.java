@@ -52,6 +52,7 @@ public final class Constants
 
     public static final String EMPTY_OBJECT = "{}";
     public static final String ERROR_NOT_FOUND_VERSION = "Version not found";
+    public static final String ERROR_NO_SERVICE = "No healthcheck service activated";
     public static final String ERROR_NOT_FOUND_RESOURCE = "Resource not found";
     public static final String ERROR_BAD_REQUEST_EMPTY_PARAMETER = "Empty parameter";
 
