@@ -35,6 +35,7 @@
 package fr.paris.lutece.plugins.rest.modules.healthcheck.rs;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -55,6 +56,7 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.util.json.ErrorJsonResponse;
 import fr.paris.lutece.util.json.JsonResponse;
 import fr.paris.lutece.util.json.JsonUtil;
+
 
 /**
  * TestRest
@@ -161,9 +163,12 @@ public class HealthCheckRest
                     .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.SERVICE_UNAVAILABLE.name( ), msg ) ) )
                     .build( );
         }
-
-        // health check Ok !
-        return Response.status( Response.Status.OK ).entity( JsonUtil.buildJsonResponse( new JsonResponse( listChecks ) ) ).build( );
+        
+        List<WrapperResponse> listChecksFormated = new ArrayList();
+        
+        listChecks.stream( ).forEach(el -> listChecksFormated.add(new WrapperResponse(el)));
+        
+	    return Response.status( Response.Status.OK ).entity( JsonUtil.buildJsonResponse( new JsonResponse( listChecksFormated ))).build( );
     }
 
     /**

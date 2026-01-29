@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
+import com.sun.management.OperatingSystemMXBean;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -43,18 +43,24 @@ import org.eclipse.microprofile.health.Liveness;
 @Liveness
 public class MemoryUsageCheck implements HealthCheck
 {
-
+	private static double MEMORY_MAX = 0.9;
+	
     @Override
     public HealthCheckResponse call( )
     {
-        MemoryMXBean memBean = ManagementFactory.getMemoryMXBean( );
-        long memUsed = memBean.getHeapMemoryUsage( ).getUsed( );
-        long memMax = memBean.getHeapMemoryUsage( ).getMax( );
-        //boolean isHealthy = memUsed < memMax * 0.9;
-        StringBuilder sb = new StringBuilder( );
+   
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+       
+        long totalHostMemory = osBean.getTotalPhysicalMemorySize();  // Total memory of host machine
+        long availableHostMemory = osBean.getFreePhysicalMemorySize(); // Free memory of host machine
 
-        return HealthCheckResponse.named( "System Liveness Check" ).status( true )
-                .withData( "message", sb.append( "Memory usage : ").append( memUsed ).append( " / " ).append( memMax ).toString( ) ).build( );
+        boolean isHealthy =  availableHostMemory >= totalHostMemory * (1-MEMORY_MAX); // Check if there is more than 90% memory space left in the host machine
+
+        StringBuilder sb = new StringBuilder( );
+        
+        return HealthCheckResponse.named( "Memory Host Check" ).status( isHealthy )
+                .withData( "message", sb.append("Memory available (b) : ").append( availableHostMemory ).append( " / " ).append( totalHostMemory ).toString( ) )
+                .build( );
     }
 
 }

@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.lang.management.OperatingSystemMXBean;
 
 import org.eclipse.microprofile.health.HealthCheck;
@@ -50,15 +51,18 @@ public class CpuUsageCheck implements HealthCheck
     {
 
         OperatingSystemMXBean bean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean( );
+        
+      //Percent of cpu used by host.
+        double cpuUsed = ((com.sun.management.OperatingSystemMXBean) bean).getSystemCpuLoad();
+        boolean isHealthy = cpuUsed<CPU_MAX;
+        
+        StringBuilder sb = new StringBuilder( );
 
-        double cpuUsed = bean.getSystemLoadAverage( );
-        double cpuNb = bean.getAvailableProcessors( );
-        //boolean isHealthy = (cpuUsed / cpuNb) < CPU_MAX;
-        StringBuilder msg = new StringBuilder().append( "System Load Average : ").append( cpuUsed / cpuNb ) ;
-
-        return HealthCheckResponse.named( "CPU usage Check" )
-        		.status( true )
-        		.withData( "message", msg.toString( ) )
+        // Temps CPU total utilisé par les threads de la JVM
+        
+        return HealthCheckResponse.named( "Host CPU usage Check" )
+        		.status( isHealthy )
+        		.withData( "message", sb.append("CPU usage : ").append(String.format("%.1f",cpuUsed*100)).append(" %").toString( ) )
         		.build( );
     }
 

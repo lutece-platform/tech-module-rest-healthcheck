@@ -15,9 +15,15 @@
     
     <!-- memory usage Check -->
     <bean id="rest-healthcheck.memoryUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.MemoryUsageCheck" />
-	
-	<!-- cpu usage Check -->
+
+    <!-- memory usage of JVM Check -->
+    <bean id="rest-healthcheck.memoryJVMUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.MemoryJVMUsageCheck" />
+
+    <!-- cpu usage Check -->
     <bean id="rest-healthcheck.cpuUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.CpuUsageCheck" />
+       
+    <!-- cpu usage of JVM Check -->
+    <bean id="rest-healthcheck.cpuJVMUsageCheck" class="fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl.CpuJVMUsageCheck" />
 	    
     <!-- Rest service -->
     <bean id="rest-healthcheck.checkRest" class="fr.paris.lutece.plugins.rest.modules.healthcheck.rs.HealthCheckRest" />
