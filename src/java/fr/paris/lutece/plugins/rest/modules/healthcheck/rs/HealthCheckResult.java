@@ -31,23 +31,62 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.rest.modules.healthcheck.business;
+package fr.paris.lutece.plugins.rest.modules.healthcheck.rs;
 
-import fr.paris.lutece.test.LuteceTestCase;
+import java.util.Collections;
+import java.util.Map;
 
-import java.util.Optional;
+import org.eclipse.microprofile.health.HealthCheckResponse;
 
 /**
- * This is the business class test for the object Test
+ * JSON form of a health check response: name, status and data.
  */
-public class TestBusinessTest extends LuteceTestCase
+public class HealthCheckResult
 {
+    private final String _strName;
+    private final String _strStatus;
+    private final Map<String, Object> _mapData;
+
     /**
-     * test Test
+     * Builds the JSON form of a health check response.
+     *
+     * @param response
+     *            the health check response
      */
-    public void testBusiness( )
+    public HealthCheckResult( HealthCheckResponse response )
     {
-        // no test
+        _strName = response.getName( );
+        _strStatus = response.getStatus( ).name( );
+        _mapData = response.getData( ).orElse( Collections.emptyMap( ) );
     }
 
+    /**
+     * Returns the name of the check.
+     *
+     * @return the name
+     */
+    public String getName( )
+    {
+        return _strName;
+    }
+
+    /**
+     * Returns the status of the check, UP or DOWN.
+     *
+     * @return the status
+     */
+    public String getStatus( )
+    {
+        return _strStatus;
+    }
+
+    /**
+     * Returns the data of the check.
+     *
+     * @return the data, empty when the check carries none
+     */
+    public Map<String, Object> getData( )
+    {
+        return _mapData;
+    }
 }

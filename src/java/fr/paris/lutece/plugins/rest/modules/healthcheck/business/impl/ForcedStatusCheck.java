@@ -34,6 +34,8 @@
 
 package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -42,12 +44,16 @@ import org.eclipse.microprofile.health.Readiness;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
 
 @Readiness
-public final class ForcedStatusCheck implements HealthCheck
+@ApplicationScoped
+public class ForcedStatusCheck implements HealthCheck
 {
 
     private static final String HEALTHCHECK_NAME = "Forced.Healthcheck";
     private static final String HEALTHCHECK_KEY = "Health";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HealthCheckResponse call( )
     {

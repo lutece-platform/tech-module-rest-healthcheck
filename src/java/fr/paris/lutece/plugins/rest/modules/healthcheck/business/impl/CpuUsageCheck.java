@@ -36,24 +36,26 @@ package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 
 @Liveness
+@ApplicationScoped
 public class CpuUsageCheck implements HealthCheck
 {
-	private static double CPU_MAX = 0.95;
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HealthCheckResponse call( )
     {
-
-        OperatingSystemMXBean bean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean( );
+        OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean( );
 
         double cpuUsed = bean.getSystemLoadAverage( );
         double cpuNb = bean.getAvailableProcessors( );
-        //boolean isHealthy = (cpuUsed / cpuNb) < CPU_MAX;
         StringBuilder msg = new StringBuilder().append( "System Load Average : ").append( cpuUsed / cpuNb ) ;
 
         return HealthCheckResponse.named( "CPU usage Check" )

@@ -34,6 +34,9 @@
 
 package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -42,29 +45,22 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 
 @Readiness
-public final class DBCheck implements HealthCheck
+@ApplicationScoped
+public class DBCheck implements HealthCheck
 {
-
-    // Static variable pointed at the DAO instance
-    private static IDBCheckDAO _dao;
-    private static Plugin _plugin = PluginService.getPlugin( "rest-healthcheck" );
+    private static final String PLUGIN_NAME = "rest-healthcheck";
     private static final String HEALTHCHECK_NAME = "DB.Healthcheck";
 
-    /**
-     * constructor
-     * 
-     * @param dao
-     */
-    public DBCheck( IDBCheckDAO dao )
-    {
-        _dao = dao;
-    }
+    @Inject
+    private IDBCheckDAO _dao;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HealthCheckResponse call( )
     {
-
-        return _dao.call( HEALTHCHECK_NAME, _plugin );
+        return _dao.call( HEALTHCHECK_NAME, PluginService.getPlugin( PLUGIN_NAME ) );
     }
 
 }

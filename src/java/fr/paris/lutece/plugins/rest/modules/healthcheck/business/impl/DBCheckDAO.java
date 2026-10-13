@@ -34,21 +34,25 @@
 
 package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 /**
  * This class provides Data Access methods for Test objects
  */
-public final class DBCheckDAO implements IDBCheckDAO
+@ApplicationScoped
+public class DBCheckDAO implements IDBCheckDAO
 {
-    // Constants
-    private static final String PROPERTY_DB_CHECK = "portal.checkvalidconnectionsql";
-    private static final String SQL_DEFAULT_CHECK_QUERY = AppPropertiesService.getProperty( PROPERTY_DB_CHECK, "SELECT 1" );
+    @Inject
+    @ConfigProperty( name = "portal.checkvalidconnectionsql", defaultValue = "SELECT 1" )
+    private String _strCheckQuery;
 
     /**
      * {@inheritDoc }
@@ -58,7 +62,7 @@ public final class DBCheckDAO implements IDBCheckDAO
     {
         HealthCheckResponseBuilder test = HealthCheckResponse.named( name );
 
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_DEFAULT_CHECK_QUERY, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( _strCheckQuery, plugin ) )
         {
             daoUtil.executeQuery( );
 

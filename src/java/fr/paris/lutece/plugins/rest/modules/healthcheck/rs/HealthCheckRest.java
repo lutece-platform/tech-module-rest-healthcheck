@@ -37,12 +37,14 @@ package fr.paris.lutece.plugins.rest.modules.healthcheck.rs;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -57,12 +59,17 @@ import fr.paris.lutece.util.json.JsonResponse;
 import fr.paris.lutece.util.json.JsonUtil;
 
 /**
- * TestRest
+ * Health check REST resource
  */
 @Path( RestConstants.BASE_PATH + Constants.API_PATH + Constants.VERSION_PATH + Constants.HEALTH_PATH )
+@ApplicationScoped
 public class HealthCheckRest
 {
     private static final int VERSION_1 = 1;
+    private static final String DATA_MESSAGE = "message";
+
+    @Inject
+    private HealthCheckService _healthCheckService;
 
     /**
      * Get check List results
@@ -133,12 +140,13 @@ public class HealthCheckRest
     /**
      * Get check List V1
      * 
+     * @param strHealthTypePath
+     *            the health type path, or null for every check
      * @return the check List for the version 1
      */
-    private Response getCheckListV1( String strHealthTypePath)
+    private Response getCheckListV1( String strHealthTypePath )
     {
-    	
-        List<HealthCheckResponse> listChecks = HealthCheckService.getInstance( ).check( getAnnotationClassForPath ( strHealthTypePath ) );
+        List<HealthCheckResponse> listChecks = _healthCheckService.check( getQualifierForPath( strHealthTypePath ) );
 
         if ( listChecks.isEmpty( ) )
         {
@@ -147,43 +155,43 @@ public class HealthCheckRest
                     .build( );
         }
 
-        // Search if exists a test with a "KO" status
         HealthCheckResponse downCheck = listChecks.stream( ).filter( t -> ( t.getStatus( ) == HealthCheckResponse.Status.DOWN ) ).findFirst( ).orElse( null );
 
         if ( downCheck != null )
         {
-        	String msg = downCheck.getName( ) ;
-        	if ( downCheck.getData().isPresent( ) && downCheck.getData().get( ).containsKey( "message") )
-        	{
-        		msg = (String)downCheck.getData().get( ).get( "message");
-        	}
+            String msg = downCheck.getName( );
+            if ( downCheck.getData( ).isPresent( ) && downCheck.getData( ).get( ).containsKey( DATA_MESSAGE ) )
+            {
+                msg = String.valueOf( downCheck.getData( ).get( ).get( DATA_MESSAGE ) );
+            }
             return Response.status( Response.Status.SERVICE_UNAVAILABLE )
                     .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.SERVICE_UNAVAILABLE.name( ), msg ) ) )
                     .build( );
         }
 
-        // health check Ok !
-        return Response.status( Response.Status.OK ).entity( JsonUtil.buildJsonResponse( new JsonResponse( listChecks ) ) ).build( );
+        return Response.status( Response.Status.OK )
+                .entity( JsonUtil.buildJsonResponse( new JsonResponse( listChecks.stream( ).map( HealthCheckResult::new ).toList( ) ) ) ).build( );
     }
 
     /**
-     * get annontation class from path
+     * Get the qualifier of the checks served by a path
      * 
      * @param strHealthType
-     * @return the class if exists
+     *            the health type path
+     * @return the qualifier, or null for every check
      */
-	private Class<? extends Annotation> getAnnotationClassForPath(String strHealthType) {
-		
-		if ( Constants.READY_PATH.equals( strHealthType ) )
-		{
-			return Readiness.class;
-		}
-		
-		if ( Constants.LIVE_PATH.equals( strHealthType ) )
-		{
-			return Liveness.class;
-		}
-		
-		return null;
-	}
+    private Annotation getQualifierForPath( String strHealthType )
+    {
+        if ( Constants.READY_PATH.equals( strHealthType ) )
+        {
+            return Readiness.Literal.INSTANCE;
+        }
+
+        if ( Constants.LIVE_PATH.equals( strHealthType ) )
+        {
+            return Liveness.Literal.INSTANCE;
+        }
+
+        return null;
+    }
 }

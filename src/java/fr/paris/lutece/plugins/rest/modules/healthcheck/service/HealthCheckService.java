@@ -37,57 +37,49 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.plugin.PluginService;
 
+/**
+ * Runs the health checks of the webapp.
+ */
+@ApplicationScoped
 public class HealthCheckService
 {
+    private static final String PLUGIN_NAME = "rest-healthcheck";
 
-    private static HealthCheckService _singleton;
-
-    private static List<HealthCheck> _healthCheckList;
-
-    /**
-     * Private constructor
-     */
-    private HealthCheckService( )
-    {
-        _healthCheckList = SpringContextService.getBeansOfType( HealthCheck.class );
-    }
+    @Inject
+    @Any
+    private Instance<HealthCheck> _healthChecks;
 
     /**
-     * Get the unique instance of the Security Service
-     * 
-     * @return The instance
-     */
-    public static HealthCheckService getInstance( )
-    {
-        if ( _singleton == null )
-        {
-            _singleton = new HealthCheckService( );
-        }
-
-        return _singleton;
-    }
-
-    /**
-     * get health checks
-     * @param <T>
-     * 
+     * Runs the health checks carrying a qualifier, none while the module is disabled.
+     *
+     * @param qualifier
+     *            the qualifier of the checks to run, or null for every check
      * @return a list of test results
      */
-    public List<HealthCheckResponse> check( Class<? extends Annotation> annonationClass )
+    public List<HealthCheckResponse> check( Annotation qualifier )
     {
         List<HealthCheckResponse> list = new ArrayList<>( );
 
-        for ( HealthCheck health : _healthCheckList )
+        if ( !PluginService.isPluginEnable( PLUGIN_NAME ) )
         {
-        	if ( annonationClass == null || health.getClass( ).isAnnotationPresent( annonationClass ) )
-        	{
-        		list.add( health.call( ) );
-        	}
+            return list;
+        }
+
+        Instance<HealthCheck> checks = ( qualifier == null ) ? _healthChecks : _healthChecks.select( qualifier );
+
+        for ( HealthCheck health : checks )
+        {
+            list.add( health.call( ) );
         }
 
         return list;

@@ -22,15 +22,18 @@
                  <p>Several types of checks can be performed</p>
              </subsection>
              <subsection name="Configuration">
-                 <p>HealCheck classes must implement the I(...)HealthCheck interfaces, and
-                 must be injected into the context.</p>
+                 <p>The server provides the MicroProfile Health API: Open Liberty needs the mpHealth-4.0 feature.</p>
+                 <p>A health check is a CDI bean implementing org.eclipse.microprofile.health.HealthCheck,
+                 annotated @Readiness or @Liveness and @ApplicationScoped. The checks of every plugin are run.
+                 The server's own /health endpoint runs them too.</p>
+                 <p>While the module rest-healthcheck is disabled, no check runs and the service answers 503.</p>
                   <p>Some HealthCheck implementations are provided : </p>
                 <ul>
                 	<li>Database access </li>
                 	<li>Forced state for the instance stored in the DATASTORE table. 
-                	The key corresponds to the instance name + ".health" 
-                	(instance name is set with the lutece.webapp.instance property).
-                	 Value must be "UP" (or missing) or "Down".</li>
+                	The key is "Health", prefixed with the instance name and a dot when
+                	the lutece.webapp.instance property is set.
+                	 Value must be "UP" (or missing) or "DOWN".</li>
                 	<li>CPU Usage</li>
                 	<li>Memory usage</li>
                 </ul>
@@ -42,7 +45,7 @@
                  <p>The returned result will have a status of 200 (OK) or 503 (service unavailable)
                  if at least one test fails.</p>
                  
-                <p>Ex : {"result":[{"name":"DB.Healthcheck","message":"SELECT 1","status":"UP"}],"status":"OK"}</p>
+                <p>Ex : {"result":[{"name":"DB.Healthcheck","data":{},"status":"UP"}],"status":"OK"}</p>
                 <p>To check only @readiness HealthChecks: /rest/healthcheck/api/v1/health/ready</p>
                 <p>To check only @liveness HealthChecks: /rest/healthcheck/api/v1/health/live</p>
            
