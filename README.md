@@ -15,13 +15,17 @@ Several types of checks can be performed
 
 ## Configuration
 
-HealCheck classes must implement the I(...)HealthCheck interfaces, and must be injected into the context.
+The server provides the MicroProfile Health API: Open Liberty needs the mpHealth-4.0 feature.
+
+A health check is a CDI bean implementing org.eclipse.microprofile.health.HealthCheck, annotated @Readiness or @Liveness and @ApplicationScoped. The checks of every plugin are run. The server's own /health endpoint runs them too.
+
+While the module rest-healthcheck is disabled, no check runs and the service answers 503.
 
 Some HealthCheck implementations are provided :
 
  
 * Database access
-* Forced state for the instance stored in the DATASTORE table. The key corresponds to the instance name + ".health"(instance name is set with the lutece.webapp.instance property). Value must be "UP" (or missing) or "Down".
+* Forced state for the instance stored in the DATASTORE table. The key is "Health", prefixed with the instance name and a dot when the lutece.webapp.instance property is set. Value must be "UP" (or missing) or "DOWN".
 * CPU Usage
 * Memory usage
 
@@ -35,7 +39,7 @@ http://[domain]/[webapp]/rest/healthcheck/api/v1/health
 
 The returned result will have a status of 200 (OK) or 503 (service unavailable) if at least one test fails.
 
-Ex : {"result":[{"name":"DB.Healthcheck","message":"SELECT 1","status":"UP"}],"status":"OK"}
+Ex : {"result":[{"name":"DB.Healthcheck","data":{},"status":"UP"}],"status":"OK"}
 
 To check only @readiness HealthChecks: /rest/healthcheck/api/v1/health/ready
 

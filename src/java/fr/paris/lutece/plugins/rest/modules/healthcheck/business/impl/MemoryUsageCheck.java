@@ -36,21 +36,26 @@ package fr.paris.lutece.plugins.rest.modules.healthcheck.business.impl;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 
 @Liveness
+@ApplicationScoped
 public class MemoryUsageCheck implements HealthCheck
 {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HealthCheckResponse call( )
     {
         MemoryMXBean memBean = ManagementFactory.getMemoryMXBean( );
         long memUsed = memBean.getHeapMemoryUsage( ).getUsed( );
         long memMax = memBean.getHeapMemoryUsage( ).getMax( );
-        //boolean isHealthy = memUsed < memMax * 0.9;
         StringBuilder sb = new StringBuilder( );
 
         return HealthCheckResponse.named( "System Liveness Check" ).status( true )

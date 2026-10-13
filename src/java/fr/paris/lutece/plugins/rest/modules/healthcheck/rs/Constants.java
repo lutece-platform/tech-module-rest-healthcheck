@@ -44,7 +44,7 @@ public final class Constants
     public static final String VERSION = "version";
     public static final String ID = "id";
 
-    public static final String SWAGGER_DIRECTORY_PATH = "/plugins/";
+    public static final String SWAGGER_DIRECTORY_PATH = "/plugins/rest/modules/";
     public static final String SWAGGER_PATH = "/swagger";
     public static final String SWAGGER_VERSION_PATH = "/v";
     public static final String SWAGGER_REST_PATH = "rest/";

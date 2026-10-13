@@ -44,14 +44,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,11 +62,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * SwaggerRest
  */
 @Path( RestConstants.BASE_PATH + Constants.API_PATH + Constants.VERSION_PATH )
+@ApplicationScoped
 public class SwaggerRest
 {
     private static final String BASE_INFOS_SCHEMES = "schemes";
     private static final String BASE_INFOS_HOST = "host";
     private static final String BASE_INFOS_BASE_PATH = "basePath";
+    private static final ObjectMapper MAPPER = new ObjectMapper( );
 
     /**
      * Get Swagger.json
@@ -88,8 +91,7 @@ public class SwaggerRest
         {
             Map<String, String> mapBaseInfos = getBaseInfos( AppPathService.getBaseUrl( request ), strVersion );
 
-            ObjectMapper mapper = new ObjectMapper( );
-            ObjectNode objectNode = mapper.readValue( fileJson, ObjectNode.class );
+            ObjectNode objectNode = MAPPER.readValue( fileJson, ObjectNode.class );
 
             if ( objectNode.path( BASE_INFOS_HOST ).isMissingNode( ) )
             {
@@ -103,7 +105,7 @@ public class SwaggerRest
             {
                 objectNode.put( BASE_INFOS_BASE_PATH, mapBaseInfos.get( BASE_INFOS_BASE_PATH ) );
             }
-            String strSwaggerJson = mapper.writerWithDefaultPrettyPrinter( ).writeValueAsString( objectNode );
+            String strSwaggerJson = MAPPER.writerWithDefaultPrettyPrinter( ).writeValueAsString( objectNode );
             return Response.status( Response.Status.OK ).entity( strSwaggerJson ).build( );
         }
         AppLogService.error( Constants.ERROR_NOT_FOUND_RESOURCE );

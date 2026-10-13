@@ -15,13 +15,17 @@ Plusieurs types de vérifications peuvent être effectuées.
 
 ## Configuration
 
-Les classes de HealCheck doivent implémenter l'interface "IHealthCheck", et doivent être injectées dans la contexte.
+Le serveur fournit l'API MicroProfile Health : Open Liberty doit activer la feature mpHealth-4.0.
+
+Un healthcheck est un bean CDI qui implémente org.eclipse.microprofile.health.HealthCheck, annoté @Readiness ou @Liveness et @ApplicationScoped. Les checks de tous les plugins sont exécutés. Le endpoint /health du serveur les exécute aussi.
+
+Quand le module rest-healthcheck est désactivé, aucun check n'est exécuté et le service répond 503.
 
 Plusieurs implémentations sont proposées par défaut :
 
  
 * test d'accès à la base de données
-* test d'état forcé de l'instance (UP ou DOWN) stocké dans la table DATASTORE. La clé correspond au nom de l'instance + ".health"(le nom de l'instance est défini par la propriété lutece.webapp.instance). La valeur doit être "UP" (ou manquante) ou "Down".
+* test d'état forcé de l'instance (UP ou DOWN) stocké dans la table DATASTORE. La clé est "Health", préfixée par le nom de l'instance et un point quand la propriété lutece.webapp.instance est définie. La valeur doit être "UP" (ou manquante) ou "DOWN".
 * CPU Usage
 * Memory usage
 
@@ -35,7 +39,7 @@ http://[domain]/[webapp]/rest/healthcheck/api/v1/health
 
 Le résultat renvoyé aura un statut 200 (OK) ou 503 (service unavailable) si l'un des tests est en échec.
 
-Exemple : {"result":[{"name":"DB.Healthcheck","message":"SELECT 1","status":"UP"}],"status":"OK"}
+Exemple : {"result":[{"name":"DB.Healthcheck","data":{},"status":"UP"}],"status":"OK"}
 
 @readiness HealthChecks: /rest/healthcheck/api/v1/health/ready
 
